@@ -4,14 +4,14 @@ import hmac
 import secrets
 
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
 from backend.core.config import settings
 from backend.core.database import get_db
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+http_bearer = HTTPBearer()
 
 # OWASP Recommended parameters for PBKDF2-HMAC-SHA256
 PBKDF2_ITERATIONS = 600_000
@@ -75,15 +75,28 @@ def verify_token(token: str) -> dict:
 
 
 def get_current_user(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+    credentials: HTTPAuthorizationCredentials = Depends(http_bearer),
+    db: Session = Depends(get_db),
 ):
     from backend.models.user import User
 
+    token = credentials.credentials
     payload = verify_token(token)
+
     user_id = payload.get("sub")
+
     if user_id is None:
-        raise HTTPException(status_code=401, detail="Invalid token payload")
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid token payload",
+        )
+
     user = db.query(User).filter(User.id == int(user_id)).first()
+
     if user is None:
-        raise HTTPException(status_code=401, detail="User not found")
+        raise HTTPException(
+            status_code=401,
+            detail="User not found",
+        )
+
     return user
