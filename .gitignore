@@ -1,0 +1,38 @@
+# Environment variables / secrets
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploaded files
+uploads/
+
+# Node
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Build/cache
+dist/
+build/
+.cache/
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
